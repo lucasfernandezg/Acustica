@@ -39,20 +39,33 @@ def sweep(length, f0, f1, met,fs):
 
 
 # INTEGRAL INVERSA DE SCHROEDER
-def schroeder(rir):
-    all = np.sum(rir**2)
-    a = np.array([])
-    for i in range(0,len(rir)):
-        np.append(a, np.sum(rir[i:]**2))
-    return 10*np.log10(a/all)
+# def schroeder(rir):
+#     all = np.sum(rir**2)
+#     a = np.array([])
+#     for i in range(0,len(rir)):
+#         np.append(a, np.sum(rir[i:]**2))
+#     return 10*np.log10(a/all)
 
 
 # iNTEGRAL INVERSA DE SCHROEDER EN DB
-def schroederDB(IR):
-    # Schroeder integration
+def schroeder(IR, fs, tail=45, dB=True):
+    '''
+    IR: impulse response to integrate.
+    fs: sampling frequency
+    tail: how many dB under the peak does the IR cut its tail? If T30, then minimum -35 dB (45 dB is recommended in this case)
+    Returns the Schroeders curve (sch_dB) and the sliced IR (IR_cut).
+    '''
     sch = np.cumsum(IR[::-1]**2)[::-1]
-    sch_dB = 10.0 * np.log10(sch / np.max(sch))
-    return sch_dB
+    sch_dB = np.round(10.0 * np.log10(sch / np.max(sch)),2)
+    start_cut = np.where(sch_dB == 0)[0][-1]
+    end_cut = np.where(sch_dB == -np.abs(tail))[0][0]
+    sch_dB = sch_dB[start_cut-int(fs/1000):end_cut] # 1ms de changui al principio
+    sch = sch[start_cut-int(fs/1000):end_cut]
+    IR_cut = IR[start_cut-int(fs/1000):end_cut]
+    if dB:
+        return sch_dB, IR_cut
+    else:
+        return sch/np.max(sch), IR_cut
 
 
 # VALOR MEDIO
@@ -66,23 +79,24 @@ def valorMedio(x):
     return u
 
 
+    # if overlap>=win:
+    #     raise ValueError("overlap tiene que ser menor a win")
+    # if win>len(x):
+    #     raise ValueError('El largo de la ventana (win={}) no puede ser mayor a la longuitud de la señal x (len(x)={}).'.format(win,len(x)))
 # FILTRO DE MEDIANA MOVIL
-def mmf(x, M):
+def mmf(x, win, overlap=0):
     '''
-    Filtro de media movil. x es la señal a filtrar y M el ancho de la ventana movil.
+    Filtro de media movil. x es la señal a filtrar, win el ancho de la ventana movil y overlap es el porcentaje que se solpana las ventanas.
     '''
-    if M>len(x):
-        raise ValueError('El largo de la ventana (M={}) no puede ser mayor a la longuitud de la señal x (len(x)={}).'.format(M,len(x)))
-    else:
-        xf = np.zeros(len(x)-M)
-        for i in range(0,len(x)-M):
-            xf[i] = valorMedio(x[i:i+M])
-        if (M % 2 == 0):
-            xf = np.hstack([np.zeros(M//2), xf, np.zeros(M//2)])
-        else:
-            xf = np.hstack([np.zeros(M//2), xf, np.zeros((M//2)+1)])
-        return xf
+    out=np.zeros(len(x))
+    indexes = np.arange(0,len(x)-win+1,win-overlap)
+    for i in indexes:
+        out[i] = np.sum(x[i:i+win])/len(x[i:i+win])
+        if i!= 0:
+            out[i-overlap+1:i] = np.linspace(out[i-overlap], out[i], overlap+1)[1:-1]
+    return out
 
+    
 
 # RMS DE UNA SEÑAL
 def rms(x):

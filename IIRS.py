@@ -30,6 +30,17 @@ def schroeder(rir):
     return 10*np.log10(a/all)
 
 
+
+# VALOR MEDIO
+def valorMedio(x): 
+    '''
+    Calcula el valor medio de una señal x[n] de una dimensión.
+    x[n] se entrega como una list o un array de numpy.
+    Libreria necesaria: Numpy as np
+    '''
+    u = np.sum(np.array(x))/len(x)  #len(x) en vez de x.shape[0] porque len funciona para lists y arrays
+    return u
+
 # Filtro de Media Movil: #
 
 def mmf(x, M):
