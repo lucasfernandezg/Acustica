@@ -7,10 +7,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # FILTRO
+def downsamplingfactor(freq, fs):
+    guard = 0.10
+    factor = (np.floor((fs / (2+guard)) / np.array(freq)))
+    for idx in range(len(factor)):
+        # Factor between 1<factor<50
+        factor[idx] = max(min(factor[idx], 50), 1)
+    
+    return factor
 
-def filtrar(señal, fs, tercio = False):
+def filtrar(señal, fs, tercio = False, resamp = False):
     ext = 2
-    nyq = fs/2
+    nyq = int(fs/2)
     bandas = [31.25, 62.5, 125, 250, 500, 1000, 2000, 4000, 8000, 16000] #**(1/2) para extremos oct y (1/6) para ter
     fter = [24.803, 31.25, 39.373, 49.606, 62.5, 78.745, 99.213, 125, 157.49, 198.43, 250, 314.98, 396.85, 500, 629.96, 793.7, 1000, 1259.9, 1587.4, 2000, 2519.8, 3174.8, 4000, 5039.7, 6349.6, 8000, 10079, 12699, 16000, 20159]
     if tercio:
@@ -18,19 +26,34 @@ def filtrar(señal, fs, tercio = False):
         bandas = fter
     extremos = [(x*2**(-1/ext))/nyq for x in bandas]
     extremos.append((bandas[-1]*2**(1/ext))/nyq)
+    extremos = np.array(extremos)
     if extremos[-1] >= 1:
         extremos[-1]=0.999999999
-    print(extremos)
+    # soslow = []
+    # soshi = []
     soses = []
     señalfiltrada = {}
-    for i in range(0,len(bandas)):
-        soses.append(sig.butter(6, [extremos[i], extremos[i+1]], btype='band', analog = False, output='sos'))
-        señalfiltrada[str(bandas[i])] = sig.sosfilt(soses[i],señal)
+    if resamp:
+        factor = downsamplingfactor(extremos*nyq, fs)
+        for i in range(0,len(bandas)):
+            soses.append(sig.butter(6, [extremos[i], extremos[i+1]], btype='band', analog = False, output='sos'))
+            x = sig.resample(señal, round(len(señal) / factor[i]))
+            y = sig.sosfilt(soses[i], x)
+            señalfiltrada[str(bandas[i])] = sig.resample_poly(y,factor[i],1)
+    else:
+        # for i in range(0,3):
+        #     soslow.append(sig.butter(6, extremos[i+1], btype='lowpass', analog = False, output='sos'))
+        #     soshi.append(sig.butter(6, extremos[i], btype='highpass', analog = False, output='sos'))
+        #     a = sig.sosfilt(soslow[i], señal)
+        #     señalfiltrada[str(bandas[i])] = sig.sosfilt(soshi[i], a)
+        for i in range(0,len(bandas)):
+            soses.append(sig.butter(6, [extremos[i], extremos[i+1]], btype='band', analog = False, output='sos'))
+            señalfiltrada[str(bandas[i])] = sig.sosfilt(soses[i], señal)
     return señalfiltrada, bandas, soses
 
 
 # GENERADOR DE SWEEP Y FILTRO INVERSO
-def sweep(length, f0, f1, met,fs):
+def sweep(length, f0, f1, met, fs):
     t = np.linspace(0,length,int(fs*length))
     sw = sig.chirp(t,f0=f0,t1=t[-1],f1=f1,method=met)
     factor = np.exp((t*np.log(f1/f0))/length)
@@ -83,6 +106,7 @@ def valorMedio(x):
     #     raise ValueError("overlap tiene que ser menor a win")
     # if win>len(x):
     #     raise ValueError('El largo de la ventana (win={}) no puede ser mayor a la longuitud de la señal x (len(x)={}).'.format(win,len(x)))
+
 # FILTRO DE MEDIANA MOVIL
 def mmf(x, win, overlap=0):
     '''

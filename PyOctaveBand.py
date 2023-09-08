@@ -8,10 +8,10 @@ from scipy import signal
 import matplotlib.pyplot as plt
 
 # Public methods
-__all__ = ['octavefilter', 'getansifrequencies', 'normalizedfreq']
+__all__ = ['filter', 'getansifrequencies', 'normalizedfreq']
 
 
-def octavefilter(x, fs, fraction=1, order=6, limits=None, show=0, sigbands =0):
+def filter(x, fs, fraction, order=6, limits=None, show=0, sigbands = True):
     """
     Filter a signal with octave or fractional octave filter bank. This
     method uses a Butterworth filter with Second-Order Sections
@@ -39,6 +39,8 @@ def octavefilter(x, fs, fraction=1, order=6, limits=None, show=0, sigbands =0):
 
     # Generate frequency array
     freq, freq_d, freq_u = _genfreqs(limits, fraction, fs)
+    print(freq)
+    print(freq_u)
 
     # Calculate the downsampling factor (array of integers with size [freq])
     factor = _downsamplingfactor(freq_u, fs)
@@ -55,7 +57,7 @@ def octavefilter(x, fs, fraction=1, order=6, limits=None, show=0, sigbands =0):
             y = signal.sosfilt(sos[idx], sd)
             spl[idx] = 20 * np.log10(np.std(y) / 2e-5)
             xb.append(signal.resample_poly(y,factor[idx],1))
-        return spl.tolist(), freq, xb
+        return xb, freq, sos
     else:
         # Create array with SPL for each frequency band
         spl = np.zeros([len(freq)])
@@ -63,7 +65,7 @@ def octavefilter(x, fs, fraction=1, order=6, limits=None, show=0, sigbands =0):
             sd = signal.resample(x, round(len(x) / factor[idx]))
             y = signal.sosfilt(sos[idx], sd)
             spl[idx] = 20 * np.log10(np.std(y) / 2e-5)
-        return spl.tolist(), freq
+        return spl.tolist()
 
 
 def _typesignal(x):
