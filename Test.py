@@ -6,20 +6,39 @@ from PyOctaveBand import *
 
 imp, fs = sf.read("Impulse.wav")
 
+
+
+imp_est = mmf(imp,500,10)
+#mp_det = imp - imp_est
+sch_est, imp_est = schroeder(imp_est, fs, 45, False)
+#sch_det, imp_det = schroeder(imp_det, fs, 45, False)
+
+
 plt.figure()
-plt.plot(imp)
+plt.plot(imp, label="imp")
+plt.plot(imp_est,label="Est")
+#plt.plot(imp_det, label="det")
+plt.legend()
+plt.grid()
+plt.show()
 
-sch, imp = schroeder(imp, fs, 45, False)
+plt.figure()
+#plt.plot(sch_det, label="det")
+plt.plot(sch_est,label="Est")
+#plt.plot(imp_det, label="det")
+plt.legend()
+plt.grid()
+plt.show()
 
-sw, inv = sweep(10, 200, 16000, "logarithmic", 48000)
+# sw, inv = sweep(10, 200, 16000, "logarithmic", 48000)
 # hann = np.hanning(fs/100)
 # mid = index_where(hann, 1)
 # addm = len(sw)-fs/100
 # hann_win = np.concatenate((hann[:mid],np.ones(int(addm)),hann[mid:]))
 # sw = hann_win*sw
 
-sf.write("sweep.wav", sw, 48000)
-sf.write("Filt_inv.wav", inv, 48000)
+# sf.write("sweep.wav", sw, 48000)
+# sf.write("Filt_inv.wav", inv, 48000)
 
 # M=500
 # overlap = int(M/2)

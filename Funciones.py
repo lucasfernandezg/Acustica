@@ -53,7 +53,7 @@ def filtrar(señal, fs, tercio = False, resamp = False):
 
 
 # GENERADOR DE SWEEP Y FILTRO INVERSO
-def sweep(length, f0, f1, met, fs):
+def sweep(length, f0, f1, fs, met="logarithmic"):
     # Hann: Donde hann = 0dB por primera vez = f0. Entonces el chirp me queda más largo en realidad.
     #hann = np.hanning(len(sw))
     t = np.linspace(0,length,int(fs*length))
@@ -100,7 +100,7 @@ def schroeder(IR, fs, tail=45, dB=True):
 
 
 # VALOR MEDIO
-def valorMedio(x): 
+def valorMedio(x):
     '''
     Calcula el valor medio de una señal x[n] de una dimensión.
     x[n] se entrega como una list o un array de numpy.
@@ -116,9 +116,9 @@ def valorMedio(x):
     #     raise ValueError('El largo de la ventana (win={}) no puede ser mayor a la longuitud de la señal x (len(x)={}).'.format(win,len(x)))
 
 # FILTRO DE MEDIANA MOVIL
-def mmf(x, win, overlap=0):
+def mmf_old(x, win, overlap=0):
     '''
-    Filtro de media movil. x es la señal a filtrar, win el ancho de la ventana movil y overlap es el porcentaje que se solpana las ventanas.
+    Filtro de media movil. x es la señal a filtrar, win el ancho de la ventana movil y overlap son las muestras que se solpanan las ventanas.
     '''
     out=np.zeros(len(x))
     indexes = np.arange(0,len(x)-win+1,win-overlap)
@@ -126,6 +126,13 @@ def mmf(x, win, overlap=0):
         out[i] = np.sum(x[i:i+win])/len(x[i:i+win])
         if i!= 0:
             out[i-overlap+1:i] = np.linspace(out[i-overlap], out[i], overlap+1)[1:-1]
+    return out
+
+def mmf(x,win,overlap=0):
+    out=[]
+    for i in np.arange(0, len(x)-win+1, win-overlap):
+        out.append(np.sum(x[i:i+win])/len(x[i:i+win]))
+    out = np.interp(np.linspace(0,len(out),len(out)*(win-overlap)),np.arange(0,len(out)),out)
     return out
 
     
@@ -211,6 +218,8 @@ def C80(rir, fs):
 # TRANSITION TIME
 def Tt():
 # ITDG, transition time. no sabemos ni como calcularlo. Hay que separar el rir en estocastico y deterministico y analizar el traspaso de uno a otro en energia. Bidondo tiró: " cuando det=-3db de tot rir".
+    #Filtro de media movil = deterministico. Total - deterministico = estocastico. Schroeder de ambos y Tt= 10dB dif.
+    
     return None
 
 
