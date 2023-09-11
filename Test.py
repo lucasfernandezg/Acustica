@@ -11,15 +11,19 @@ plt.plot(imp)
 
 sch, imp = schroeder(imp, fs, 45, False)
 
-sw, inv = sweep(5, 100, 5000, "logarithmic", 48000)
-hann = np.hanning(len(sw))
-sw = hann*sw
+sw, inv = sweep(10, 200, 16000, "logarithmic", 48000)
+# hann = np.hanning(fs/100)
+# mid = index_where(hann, 1)
+# addm = len(sw)-fs/100
+# hann_win = np.concatenate((hann[:mid],np.ones(int(addm)),hann[mid:]))
+# sw = hann_win*sw
+
 sf.write("sweep.wav", sw, 48000)
 sf.write("Filt_inv.wav", inv, 48000)
 
-M=500
-overlap = int(M/2)
-sch_mmf = mmf(sch,M,overlap)
+# M=500
+# overlap = int(M/2)
+# sch_mmf = mmf(sch,M,overlap)
 
 
 

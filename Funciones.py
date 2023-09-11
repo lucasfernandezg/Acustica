@@ -54,10 +54,18 @@ def filtrar(señal, fs, tercio = False, resamp = False):
 
 # GENERADOR DE SWEEP Y FILTRO INVERSO
 def sweep(length, f0, f1, met, fs):
+    # Hann: Donde hann = 0dB por primera vez = f0. Entonces el chirp me queda más largo en realidad.
+    #hann = np.hanning(len(sw))
     t = np.linspace(0,length,int(fs*length))
     sw = sig.chirp(t,f0=f0,t1=t[-1],f1=f1,method=met)
     factor = np.exp((t*np.log(f1/f0))/length)
     inv = np.flip(sw)/factor
+    hann = np.hanning(fs/5)
+    mid = index_where(hann, 1)
+    addm = len(sw)-fs/5
+    hann_win = np.concatenate((hann[:mid],np.ones(int(addm)),hann[mid:]))
+    sw = 0.5*sw
+    sw = hann_win*sw
     return sw, inv
 
 
@@ -121,7 +129,6 @@ def mmf(x, win, overlap=0):
     return out
 
     
-
 # RMS DE UNA SEÑAL
 def rms(x):
     '''
