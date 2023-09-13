@@ -49,7 +49,7 @@ def filtrar(señal, fs, tercio = False, resamp = False):
         for i in range(0,len(bandas)):
             soses.append(sig.butter(6, [extremos[i], extremos[i+1]], btype='band', analog = False, output='sos'))
             señalfiltrada[str(bandas[i])] = sig.sosfilt(soses[i], señal)
-    return señalfiltrada, bandas, soses
+    return señalfiltrada, bandas#, soses
 
 
 # GENERADOR DE SWEEP Y FILTRO INVERSO
@@ -89,7 +89,7 @@ def schroeder(IR, fs, tail=45, dB=True):
     sch = np.cumsum(IR[::-1]**2)[::-1]
     sch_dB = np.round(10.0 * np.log10(sch / np.max(sch)),2)
     start_cut = np.where(sch_dB == 0)[0][-1]
-    end_cut = np.where(sch_dB == -np.abs(tail))[0][0]
+    end_cut = index_where(sch_dB, -tail)
     sch_dB = sch_dB[start_cut-int(fs/1000):end_cut] # 1ms de changui al principio
     sch = sch[start_cut-int(fs/1000):end_cut]
     IR_cut = IR[start_cut-int(fs/1000):end_cut]
