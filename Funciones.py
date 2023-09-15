@@ -17,6 +17,7 @@ def downsamplingfactor(freq, fs):
     return factor
 
 def filtrar(señal, fs, tercio = False, resamp = False):
+    señal = np.flip(señal)
     ext = 2
     nyq = int(fs/2)
     bandas = [31.25, 62.5, 125, 250, 500, 1000, 2000, 4000, 8000, 16000] #**(1/2) para extremos oct y (1/6) para ter
@@ -48,11 +49,9 @@ def filtrar(señal, fs, tercio = False, resamp = False):
         #     señalfiltrada[str(bandas[i])] = sig.sosfilt(soshi[i], a)
         for i in range(0,len(bandas)):
             soses.append(sig.butter(6, [extremos[i], extremos[i+1]], btype='band', analog = False, output='sos'))
-            señalfiltrada[str(bandas[i])] = sig.sosfilt(soses[i], señal)
+            señalfiltrada[str(bandas[i])] = np.flip(sig.sosfilt(soses[i], señal))
     return señalfiltrada, bandas#, soses
 
-
-# GENERADOR DE SWEEP Y FILTRO INVERSO
 def sweep(length, f0, f1, fs, met="logarithmic"):
     # Hann: Donde hann = 0dB por primera vez = f0. Entonces el chirp me queda más largo en realidad.
     #hann = np.hanning(len(sw))
@@ -60,13 +59,30 @@ def sweep(length, f0, f1, fs, met="logarithmic"):
     sw = sig.chirp(t,f0=f0,t1=t[-1],f1=f1,method=met)
     factor = np.exp((t*np.log(f1/f0))/length)
     inv = np.flip(sw)/factor
+    inv = inv/np.max(inv)
+    sw = 0.5*sw
     hann = np.hanning(fs/5)
     mid = index_where(hann, 1)
     addm = len(sw)-fs/5
     hann_win = np.concatenate((hann[:mid],np.ones(int(addm)),hann[mid:]))
-    sw = 0.5*sw
     sw = hann_win*sw
     return sw, inv
+
+#GENERADOR DE SWEEP Y FILTRO INVERSO hardcodeado
+# def sweep(length, f0, f1, fs, met="logarithmic"):
+#     # Hann: Donde hann = 0dB por primera vez = f0. Entonces el chirp me queda más largo en realidad.
+#     n = np.linspace(0,length,int(fs*length))
+#     w0 = np.pi*2*f0
+#     sw = np.sin(((w0*length)/(np.log(f1/f0)))*(np.exp((n/length)*np.log(f1/f0))-1))
+#     factor = np.exp((n*np.log(f1/f0))/length)
+#     inv = np.flip(sw)/factor
+#     hann = np.hanning(fs/5)
+#     mid = index_where(hann, 1)
+#     addm = len(sw)-fs/5
+#     hann_win = np.concatenate((hann[:mid],np.ones(int(addm)),hann[mid:]))
+#     sw = hann_win*sw
+#     sw = 0.5*sw
+#     return sw, inv
 
 
 # INTEGRAL INVERSA DE SCHROEDER
@@ -79,7 +95,7 @@ def sweep(length, f0, f1, fs, met="logarithmic"):
 
 
 # iNTEGRAL INVERSA DE SCHROEDER EN DB
-def schroeder(IR, fs, tail=45, dB=True):
+def schroeder(IR, fs, tail=36, dB=True):
     '''
     IR: impulse response to integrate.
     fs: sampling frequency
