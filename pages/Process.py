@@ -52,7 +52,8 @@ def process():
             # print(a.keys())
             for i in a.keys():
                 # print(i)
-                sch, ir = schroeder(a[i], jFs, tail = 36)
+                sch, ir = schroeder(a[i], jFs, tail = 26)
+                print(sch[-1], " ", i)
                 st.session_state.Process[jName]["bandasSch"][i] = sch
                 st.session_state.Process[jName]["IR"][i] = ir
                 st.session_state.Process[jName]["T30"].append(T30(sch, jFs))
@@ -92,7 +93,7 @@ def upload_togo():
 
 def upload():
     st.session_state.Generator["names"].append(st.session_state["file"].name)
-    audioup, fsup = sf.read(st.session_state["file"].name)
+    audioup, fsup = sf.read("AudioFiles/"+st.session_state["file"].name)
     st.session_state.Generator["fs"].append(fsup)
     st.session_state.Generator["data"].append(audioup)
 

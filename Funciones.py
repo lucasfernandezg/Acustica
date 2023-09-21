@@ -115,6 +115,16 @@ def schroeder(IR, fs, tail=36, dB=True):
         return sch/np.max(sch), IR_cut
 
 
+def denoise(signal, fs, ventana = 0.05):
+    eps = np.finfo(float).eps
+    last_10 = int(signal.size * 0.9)
+    N = int(ventana * fs) 
+    env = sig.fftconvolve(abs(signal), np.ones(N)/N, mode='same')
+    min_value = np.min(np.nan_to_num(env))
+    noise_floor = np.nan_to_num(env[last_10:], nan=min_value).mean()
+    noise_floor_idx = np.where(env<noise_floor)[0][0]
+    return signal[:noise_floor_idx]
+
 # VALOR MEDIO
 def valorMedio(x):
     '''

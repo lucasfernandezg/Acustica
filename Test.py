@@ -9,6 +9,8 @@ import soundfile as sf
 sw, fs = sf.read("SiturRIR.wav")
 inv, fs1 = sf.read("Filt_inv.wav")
 print(fs, fs1)
+
+
 # met = "log"
 # f0 = 100
 # f1 = 1000

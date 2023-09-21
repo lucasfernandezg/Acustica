@@ -18,6 +18,7 @@ st.table(df)
 
 fig = plt.figure()
 plt.plot(st.session_state.Process[st.session_state.Generator["names"][-1]]["IR"]["1000"], label=st.session_state.Generator["names"][-1])
+#plt.plot(st.session_state.Process[st.session_state.Generator["names"][-1]]["bandasSch"]["1000"], label=st.session_state.Generator["names"][-1])
 plt.legend()
 
 st.pyplot(fig)
