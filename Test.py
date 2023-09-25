@@ -5,9 +5,10 @@ from Funciones import *
 from PyOctaveBand import *
 import sounddevice as sd
 import soundfile as sf
+from lundeby import lundeby
 
-sw, fs = sf.read("SiturRIR.wav")
-inv, fs1 = sf.read("Filt_inv.wav")
+sw, fs = sf.read("AudioFiles/SiturRIR.wav")
+inv, fs1 = sf.read("AudioFiles/Filt_inv.wav")
 print(fs, fs1)
 
 
@@ -29,8 +30,9 @@ inv = inv/np.max(inv)
 s = sig.fftconvolve(sw,inv)
 plt.figure()
 plt.plot(s)
+plt.plot(lundeby(s,fs))
 plt.show()
-sf.write("Impulse_RICO_test_fft.wav",s, fs)
+#sf.write("Impulse_RICO_test_fft.wav",s, fs)
 
 
 
