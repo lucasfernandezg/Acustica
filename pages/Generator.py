@@ -33,6 +33,7 @@ if "page_save" not in st.session_state:
 
 def sweepPlay(length, f0, f1, fs):
     sw, inv = sweep(length, f0, f1, fs)
+    sw = np.concatenate([sw,np.zeros(fs)])
     sleep(int(st.session_state["waitTime"]))
     rec = sd.playrec(sw, fs, channels=1)
     imp = sig.fftconvolve(rec.reshape(-1),inv)
