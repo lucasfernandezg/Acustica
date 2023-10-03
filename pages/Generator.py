@@ -5,6 +5,8 @@ from time import sleep
 sys.path.append('..')
 st.set_page_config("RICO")
 st.title('GENERATOR')
+sd.default.reset()
+#sd.default.device = (None,None)
 # State de datos que se pasan entre páginas. Estos datos se guardan cuando se clickea Play/Rec del sweep.
 if "Generator" not in st.session_state:
     st.session_state.Generator = {"names":[], "data":[], "fs":[]} # Los datos que se pasa entre
