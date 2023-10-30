@@ -74,26 +74,26 @@ def process():
 #         st.session_state.band = False
 
 # --- El verdadero Upload
-def upload_togo():
-    file = wav_bytes = io.BytesIO(st.session_state["file"].read())
+# def upload_togo():
+#     file = wav_bytes = io.BytesIO(st.session_state["file"].read())
     
-    if file is not None:
-        with wave.open(wav_bytes, 'rb') as wav_file:
-            # Obtener los parámetros del archivo WAV
-            params = wav_file.getparams()
-            print(params.framerate)
+#     if file is not None:
+#         with wave.open(wav_bytes, 'rb') as wav_file:
+#             # Obtener los parámetros del archivo WAV
+#             params = wav_file.getparams()
+#             print(params.framerate)
             
-            # Leer los datos del archivo WAV en un arreglo NumPy
-            audio_data = np.frombuffer(wav_file.readframes(params.nframes), dtype=np.int16)
-            st.session_state.Generator["names"].append(st.session_state["file"].name)
-            st.session_state.Generator["fs"].append(params.framerate)
-            st.session_state.Generator["data"].append(audio_data)
-#             print(st.session_state["file"].name)
-#             print(audio_data)
+#             # Leer los datos del archivo WAV en un arreglo NumPy
+#             audio_data = np.frombuffer(wav_file.readframes(params.nframes), dtype=np.int16)
+#             st.session_state.Generator["names"].append(st.session_state["file"].name)
+#             st.session_state.Generator["fs"].append(params.framerate)
+#             st.session_state.Generator["data"].append(audio_data)
+# #             print(st.session_state["file"].name)
+# #             print(audio_data)
 
 def upload():
     st.session_state.Generator["names"].append(st.session_state["file"].name)
-    audioup, fsup = sf.read("AudioFiles/"+st.session_state["file"].name)
+    audioup, fsup = sf.read(st.session_state["file"].name)
     st.session_state.Generator["fs"].append(fsup)
     st.session_state.Generator["data"].append(audioup)
 
