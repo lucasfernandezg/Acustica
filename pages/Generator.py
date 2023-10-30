@@ -5,6 +5,8 @@ from time import sleep
 sys.path.append('..')
 st.set_page_config("RICO")
 st.title('GENERATOR')
+sd.default.reset()
+#sd.default.device = (None,None)
 # State de datos que se pasan entre páginas. Estos datos se guardan cuando se clickea Play/Rec del sweep.
 if "Generator" not in st.session_state:
     st.session_state.Generator = {"names":[], "data":[], "fs":[]} # Los datos que se pasa entre
@@ -31,6 +33,7 @@ if "page_save" not in st.session_state:
 
 def sweepPlay(length, f0, f1, fs):
     sw, inv = sweep(length, f0, f1, fs)
+    sw = np.concatenate([sw,np.zeros(fs)])
     sleep(int(st.session_state["waitTime"]))
     rec = sd.playrec(sw, fs, channels=1)
     imp = sig.fftconvolve(rec.reshape(-1),inv)
