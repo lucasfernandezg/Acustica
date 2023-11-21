@@ -5,6 +5,7 @@ import sounddevice as sd
 import soundfile as sf
 import numpy as np
 import matplotlib.pyplot as plt
+from Filterbank import Filterbank
 
 # FILTRO
 def downsamplingfactor(freq, fs):
@@ -51,6 +52,25 @@ def filtrar(señal, fs, tercio = False, resamp = False):
             soses.append(sig.butter(6, [extremos[i], extremos[i+1]], btype='band', analog = False, output='sos'))
             señalfiltrada[str(bandas[i])] = np.flip(sig.sosfilt(soses[i], señal))
     return señalfiltrada, bandas#, soses
+
+
+
+def filtrado(rir, fs, ter):
+    params = {'fs': fs,
+              'bands': [31.5, 63, 125, 250, 500, 1000, 2000, 4000, 8000, 16000],
+              'bandsize': 2,
+              'order': 4,
+              'f_length': 16384,
+              'power': True}
+    if ter:
+        params['bands'] = [25, 31.5, 40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400, 500, 630,
+                           800, 1000, 1250, 1600, 2000, 2500, 3150, 4000, 5000, 6300, 8000, 10000, 12500, 16000]
+        params['bandsize'] = 3
+    filterbank = Filterbank(**params)
+    bands, centros = filterbank.apply(rir)
+    return bands, centros
+
+
 
 def sweep(length, f0, f1, fs, met="logarithmic"):
     # Hann: Donde hann = 0dB por primera vez = f0. Entonces el chirp me queda más largo en realidad.
