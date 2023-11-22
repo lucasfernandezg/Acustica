@@ -4,11 +4,20 @@ from Funciones import *
 import os
 import pandas as pd
 
+#from tempfile import NamedTemporaryFile
+
+
+
+
 ### Funciones ###
 def without_keys(d, keys):
     return {x: d[x] for x in d if x not in keys}
 
 def upload():
+    # with NamedTemporaryFile(dir='.', suffix='.wav') as f:
+    #     f.write(file.getbuffer())
+    #     path = f.name.split("tmp")[0]
+    #     print(path)
     if st.session_state["file"] is not None:
         st.session_state.rirs["name"] = st.session_state["file"].name
         audio, fs = sf.read("AudioFiles/"+st.session_state["file"].name)
@@ -56,6 +65,8 @@ st.markdown(
 
 
 file = st.file_uploader("Upload Wav File", type=[".wav",".wave"], key = "file", on_change=upload)
+
+
 
 # Información de la RIR cargada
 if st.session_state.rirs["name"] != None:
