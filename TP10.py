@@ -90,5 +90,10 @@ if st.session_state.rirs["data"] is not None:
     plt.plot(st.session_state.rirs["data"])
     st.pyplot(fig)
 
+def export():
+    df.to_excel(f"{st.session_state.rirs['name'].split('/')[-1][:-4]} Parameters.xlsx")
 # Export Excel
 
+if st.session_state.rirs["dataOK"] == True:
+    df = pd.DataFrame.from_dict(data)
+    st.button("Export Data", on_click=export)
