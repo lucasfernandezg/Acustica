@@ -1,7 +1,7 @@
 #! D:\Programacion\Python\admin\Scripts\python.exe
 # git
 from scipy import signal as sig
-import sounddevice as sd
+#import sounddevice as sd
 import soundfile as sf
 import numpy as np
 import matplotlib.pyplot as plt
